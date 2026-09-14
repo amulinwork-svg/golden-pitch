@@ -106,7 +106,12 @@ const newCardsElement = document.querySelector("#newCards");
 const collectionElement = document.querySelector("#collection");
 const cardCountElement = document.querySelector("#cardCount");
 const closeModalButton = document.querySelector("#closeModal");
+const detailsModal = document.querySelector("#detailsModal");
+const detailsCard = document.querySelector("#detailsCard");
+const closeDetailsButton = document.querySelector("#closeDetails");
+const deleteCardButton = document.querySelector("#deleteCard");
 
+let selectedCardIndex = null;
 let coins = Number(localStorage.getItem("goldenPitchCoins")) || 100;
 let collection = JSON.parse(
   localStorage.getItem("goldenPitchCollection") || "[]"
@@ -124,6 +129,48 @@ function createCard(player) {
   card.className = "card";
   if (player.rarity === "Редкая") {
   card.classList.add("rare");
+}
+
+function createDetailsCard(player) {
+  detailsCard.innerHTML = `
+    <div class="details-card">
+      <div class="details-rating">${player.rating}</div>
+      <div class="details-position">${player.position}</div>
+
+      <img
+        class="details-image"
+        src="${player.image}"
+        alt="Вымышленный игрок ${player.name}"
+      >
+
+      <div class="details-info">
+        <p class="details-rarity">${player.rarity}</p>
+        <h2>${player.name}</h2>
+
+        <div class="details-stats">
+          <div>
+            <span>СКОРОСТЬ</span>
+            <strong>${player.pace}</strong>
+          </div>
+
+          <div>
+            <span>УДАР</span>
+            <strong>${player.shooting}</strong>
+          </div>
+
+          <div>
+            <span>ПАС</span>
+            <strong>${player.passing}</strong>
+          </div>
+
+          <div>
+            <span>ЗАЩИТА</span>
+            <strong>${player.defense}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 if (player.rarity === "Эпическая") {
@@ -172,9 +219,18 @@ function updateCollection() {
     collectionElement.className = "collection";
     collectionElement.innerHTML = "";
 
-    collection.forEach((player) => {
-      collectionElement.appendChild(createCard(player));
-    });
+    collection.forEach((player, index) => {
+  const card = createCard(player);
+
+  card.addEventListener("click", () => {
+    selectedCardIndex = index;
+    createDetailsCard(player);
+    detailsModal.classList.remove("hidden");
+    hapticImpact("light");
+  });
+
+  collectionElement.appendChild(card);
+});
   }
 
   cardCountElement.textContent = `${collection.length} карт`;
@@ -257,4 +313,28 @@ console.log({
   telegramApp,
   initData: telegramApp?.initData,
   user: telegramApp?.initDataUnsafe?.user
+});
+
+closeDetailsButton.addEventListener("click", () => {
+  detailsModal.classList.add("hidden");
+});
+
+detailsModal.addEventListener("click", (event) => {
+  if (event.target === detailsModal) {
+    detailsModal.classList.add("hidden");
+  }
+});
+
+deleteCardButton.addEventListener("click", () => {
+  if (selectedCardIndex === null) {
+    return;
+  }
+
+  collection.splice(selectedCardIndex, 1);
+  selectedCardIndex = null;
+
+  saveGame();
+  updateCollection();
+  detailsModal.classList.add("hidden");
+  hapticNotification("warning");
 });
