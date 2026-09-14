@@ -433,9 +433,4 @@ body {
   .telegram-close {
     display: block;
   }
-
-  .topbar {
-    position: relative;
-    padding-top: 70px;
-  }
 }
