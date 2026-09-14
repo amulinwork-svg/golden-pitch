@@ -5,6 +5,14 @@ if (telegramApp) {
   telegramApp.expand();
 }
 
+function hapticImpact(style = "light") {
+  telegramApp?.HapticFeedback?.impactOccurred(style);
+}
+
+function hapticNotification(type = "success") {
+  telegramApp?.HapticFeedback?.notificationOccurred(type);
+}
+
 const telegramGreeting = document.querySelector("#telegramGreeting");
 
 if (telegramApp?.initDataUnsafe?.user) {
@@ -173,7 +181,10 @@ function updateCollection() {
 }
 
 function openPack() {
+  hapticImpact("medium");
+
   if (coins < 10) {
+    hapticNotification("error");
     messageElement.textContent = "Недостаточно монет";
     return;
   }
@@ -191,6 +202,7 @@ function openPack() {
     ];
 
     collection.push(...newPlayers);
+    hapticNotification("success");
     saveGame();
     updateCollection();
 
