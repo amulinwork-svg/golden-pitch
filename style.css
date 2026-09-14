@@ -434,6 +434,12 @@ body {
     display: block;
   }
 
+@media (max-width: 600px) {
+  .topbar {
+    padding-top: 58px;
+  }
+}
+
   .topbar {
     position: relative;
     padding-top: 58px;
