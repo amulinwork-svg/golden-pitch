@@ -192,6 +192,7 @@ function openPack() {
   coins -= 10;
   coinsElement.textContent = coins;
   openPackButton.disabled = true;
+  document.querySelector(".pack").classList.add("opening");
   messageElement.textContent = "Открываем пак...";
 
   setTimeout(() => {
@@ -214,6 +215,7 @@ function openPack() {
       newCardsElement.appendChild(card);
     });
 
+    document.querySelector(".pack").classList.remove("opening");
     modal.classList.remove("hidden");
     openPackButton.disabled = false;
     messageElement.textContent =
