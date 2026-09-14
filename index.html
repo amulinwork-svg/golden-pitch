@@ -65,6 +65,18 @@
     </section>
   </main>
 
+  <div id="detailsModal" class="modal hidden">
+  <div class="details-content">
+    <button id="closeDetails" class="close-button">×</button>
+
+    <div id="detailsCard"></div>
+
+    <button id="deleteCard" class="delete-card-button">
+      Удалить копию
+    </button>
+  </div>
+  </div>
+
   <div id="modal" class="modal hidden">
     <div class="modal-content">
       <button id="closeModal" class="close-button">×</button>
@@ -76,7 +88,7 @@
 
   <button id="resetGame" class="reset-button">
   Сбросить тестовую игру
-</button>
+  </button>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="script.js"></script>
 </body>
