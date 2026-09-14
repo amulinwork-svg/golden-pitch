@@ -198,9 +198,3 @@ closeTelegramApp.addEventListener("click", () => {
     telegramApp.close();
   }
 });
-
-console.log({
-  telegramApp,
-  initData: telegramApp?.initData,
-  user: telegramApp?.initDataUnsafe?.user
-});
