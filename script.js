@@ -1,9 +1,30 @@
+alert("Новая версия script.js загрузилась");
+
 const telegramApp = window.Telegram?.WebApp;
 
 if (telegramApp) {
   telegramApp.ready();
   telegramApp.expand();
 }
+
+const telegramGreeting = document.querySelector("#telegramGreeting");
+
+if (!telegramApp) {
+  telegramGreeting.textContent =
+    "Telegram WebApp API не найден. Приложение открыто не как Mini App.";
+} else if (!telegramApp.initData) {
+  telegramGreeting.textContent =
+    "Telegram найден, но данные запуска отсутствуют.";
+} else if (!telegramApp.initDataUnsafe?.user) {
+  telegramGreeting.textContent =
+    "Данные Telegram есть, но пользователь не передан.";
+} else {
+  const user = telegramApp.initDataUnsafe.user;
+  telegramGreeting.textContent =
+    `Привет, ${user.first_name || "игрок"}!`;
+}
+
+telegramGreeting.classList.remove("hidden");
 
 const players = [
   {
@@ -179,4 +200,18 @@ resetGameButton.addEventListener("click", () => {
   localStorage.removeItem("goldenPitchCoins");
   localStorage.removeItem("goldenPitchCollection");
   location.reload();
+});
+
+const closeTelegramApp = document.querySelector("#closeTelegramApp");
+
+closeTelegramApp.addEventListener("click", () => {
+  if (telegramApp) {
+    telegramApp.close();
+  }
+});
+
+console.log({
+  telegramApp,
+  initData: telegramApp?.initData,
+  user: telegramApp?.initDataUnsafe?.user
 });
