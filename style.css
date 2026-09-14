@@ -440,3 +440,31 @@ body {
     padding-top: 58px;
   }
 }
+
+.card-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px 7px;
+  margin-top: 5px;
+  color: #ffe9a8;
+  font-size: 7px;
+  line-height: 1.3;
+}
+
+.card-stats span {
+  white-space: nowrap;
+}
+
+.card.rare {
+  border-color: #74d7ff;
+  background:
+    linear-gradient(rgba(54, 139, 174, 0.2), rgba(22, 55, 80, 0.75)),
+    url("assets/golden-pitch-gold-texture.png") center / cover;
+}
+
+.card.epic {
+  border-color: #d99cff;
+  background:
+    linear-gradient(rgba(132, 52, 173, 0.25), rgba(46, 17, 67, 0.8)),
+    url("assets/golden-pitch-gold-texture.png") center / cover;
+}

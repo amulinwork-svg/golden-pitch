@@ -22,6 +22,10 @@ const players = [
     rarity: "Обычная",
     position: "ПВ",
     rating: 72,
+    pace: 78,
+    shooting: 64,
+    passing: 70,
+    defense: 38,
     image: "assets/players/luka-veil.png"
   },
   {
@@ -30,6 +34,10 @@ const players = [
     rarity: "Обычная",
     position: "ЦЗ",
     rating: 74,
+    pace: 55,
+    shooting: 32,
+    passing: 61,
+    defense: 82,
     image: "assets/players/teo-maren.png"
   },
   {
@@ -38,6 +46,10 @@ const players = [
     rarity: "Редкая",
     position: "ЛВ",
     rating: 81,
+    pace: 88,
+    shooting: 79,
+    passing: 76,
+    defense: 42,
     image: "assets/players/nico-solar.png"
   },
   {
@@ -46,6 +58,10 @@ const players = [
     rarity: "Редкая",
     position: "ЦП",
     rating: 83,
+    pace: 69,
+    shooting: 72,
+    passing: 91,
+    defense: 68,
     image: "assets/players/elias-crown.png"
   },
   {
@@ -54,6 +70,10 @@ const players = [
     rarity: "Эпическая",
     position: "ВР",
     rating: 89,
+    pace: 52,
+    shooting: 20,
+    passing: 64,
+    defense: 94,
     image: "assets/players/ryan-frost.png"
   },
   {
@@ -62,6 +82,10 @@ const players = [
     rarity: "Эпическая",
     position: "НАП",
     rating: 92,
+    pace: 93,
+    shooting: 96,
+    passing: 84,
+    defense: 35,
     image: "assets/players/orion-vega.png"
   }
 ];
@@ -90,20 +114,36 @@ function choosePlayer() {
 function createCard(player) {
   const card = document.createElement("article");
   card.className = "card";
+  if (player.rarity === "Редкая") {
+  card.classList.add("rare");
+}
+
+if (player.rarity === "Эпическая") {
+  card.classList.add("epic");
+}
 
   card.innerHTML = `
-    <div class="card-rating">${player.rating}</div>
-    <div class="card-position">${player.position}</div>
-    <img
-      class="player-image"
-      src="${player.image}"
-      alt="Вымышленный игрок ${player.name}"
-    >
-    <div class="card-info">
-      <div class="card-name">${player.name}</div>
-      <div class="card-rarity">${player.rarity}</div>
+  <div class="card-rating">${player.rating}</div>
+  <div class="card-position">${player.position}</div>
+
+  <img
+    class="player-image"
+    src="${player.image}"
+    alt="Вымышленный игрок ${player.name}"
+  >
+
+  <div class="card-info">
+    <div class="card-name">${player.name}</div>
+    <div class="card-rarity">${player.rarity}</div>
+
+    <div class="card-stats">
+      <span>СКР ${player.pace}</span>
+      <span>УДР ${player.shooting}</span>
+      <span>ПАС ${player.passing}</span>
+      <span>ЗАЩ ${player.defense}</span>
     </div>
-  `;
+  </div>
+`;
 
   return card;
 }
@@ -197,4 +237,10 @@ closeTelegramApp.addEventListener("click", () => {
   if (telegramApp) {
     telegramApp.close();
   }
+});
+
+console.log({
+  telegramApp,
+  initData: telegramApp?.initData,
+  user: telegramApp?.initDataUnsafe?.user
 });
