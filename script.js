@@ -13,16 +13,6 @@ function hapticNotification(type = "success") {
   telegramApp?.HapticFeedback?.notificationOccurred(type);
 }
 
-const telegramGreeting = document.querySelector("#telegramGreeting");
-
-if (telegramApp?.initDataUnsafe?.user) {
-  const user = telegramApp.initDataUnsafe.user;
-  const firstName = user.first_name || "игрок";
-
-  telegramGreeting.textContent = `Привет, ${firstName}!`;
-  telegramGreeting.classList.remove("hidden");
-}
-
 const players = [
   {
     id: "luka-veil",
@@ -106,18 +96,44 @@ const newCardsElement = document.querySelector("#newCards");
 const collectionElement = document.querySelector("#collection");
 const cardCountElement = document.querySelector("#cardCount");
 const closeModalButton = document.querySelector("#closeModal");
+
+const telegramGreeting = document.querySelector("#telegramGreeting");
+const closeTelegramApp = document.querySelector("#closeTelegramApp");
+
 const detailsModal = document.querySelector("#detailsModal");
 const detailsCard = document.querySelector("#detailsCard");
 const closeDetailsButton = document.querySelector("#closeDetails");
 const deleteCardButton = document.querySelector("#deleteCard");
 
 let selectedCardIndex = null;
+
 let coins = Number(localStorage.getItem("goldenPitchCoins")) || 100;
+
 let collection = JSON.parse(
   localStorage.getItem("goldenPitchCollection") || "[]"
 );
 
-coinsElement.textContent = coins;
+if (telegramGreeting) {
+  const telegramUser = telegramApp?.initDataUnsafe?.user;
+
+  if (telegramUser) {
+    telegramGreeting.textContent =
+      `Привет, ${telegramUser.first_name || "игрок"}!`;
+    telegramGreeting.classList.remove("hidden");
+  }
+}
+
+if (closeTelegramApp) {
+  closeTelegramApp.addEventListener("click", () => {
+    if (telegramApp) {
+      telegramApp.close();
+    }
+  });
+}
+
+if (coinsElement) {
+  coinsElement.textContent = coins;
+}
 
 function choosePlayer() {
   const randomIndex = Math.floor(Math.random() * players.length);
@@ -127,11 +143,47 @@ function choosePlayer() {
 function createCard(player) {
   const card = document.createElement("article");
   card.className = "card";
+
   if (player.rarity === "Редкая") {
-  card.classList.add("rare");
+    card.classList.add("rare");
+  }
+
+  if (player.rarity === "Эпическая") {
+    card.classList.add("epic");
+  }
+
+  card.innerHTML = `
+    <div class="card-rating">${player.rating}</div>
+    <div class="card-position">${player.position}</div>
+
+    <img
+      class="player-image"
+      src="${player.image}"
+      alt="Вымышленный игрок ${player.name}"
+      onerror="this.style.display='none'"
+    >
+
+    <div class="card-info">
+      <div class="card-name">${player.name}</div>
+      <div class="card-rarity">${player.rarity}</div>
+
+      <div class="card-stats">
+        <span>СКР ${player.pace}</span>
+        <span>УДР ${player.shooting}</span>
+        <span>ПАС ${player.passing}</span>
+        <span>ЗАЩ ${player.defense}</span>
+      </div>
+    </div>
+  `;
+
+  return card;
 }
 
 function createDetailsCard(player) {
+  if (!detailsCard) {
+    return;
+  }
+
   detailsCard.innerHTML = `
     <div class="details-card">
       <div class="details-rating">${player.rating}</div>
@@ -141,6 +193,7 @@ function createDetailsCard(player) {
         class="details-image"
         src="${player.image}"
         alt="Вымышленный игрок ${player.name}"
+        onerror="this.style.display='none'"
       >
 
       <div class="details-info">
@@ -173,38 +226,9 @@ function createDetailsCard(player) {
   `;
 }
 
-if (player.rarity === "Эпическая") {
-  card.classList.add("epic");
-}
-
-  card.innerHTML = `
-  <div class="card-rating">${player.rating}</div>
-  <div class="card-position">${player.position}</div>
-
-  <img
-    class="player-image"
-    src="${player.image}"
-    alt="Вымышленный игрок ${player.name}"
-  >
-
-  <div class="card-info">
-    <div class="card-name">${player.name}</div>
-    <div class="card-rarity">${player.rarity}</div>
-
-    <div class="card-stats">
-      <span>СКР ${player.pace}</span>
-      <span>УДР ${player.shooting}</span>
-      <span>ПАС ${player.passing}</span>
-      <span>ЗАЩ ${player.defense}</span>
-    </div>
-  </div>
-`;
-
-  return card;
-}
-
 function saveGame() {
   localStorage.setItem("goldenPitchCoins", coins);
+
   localStorage.setItem(
     "goldenPitchCollection",
     JSON.stringify(collection)
@@ -212,6 +236,10 @@ function saveGame() {
 }
 
 function updateCollection() {
+  if (!collectionElement || !cardCountElement) {
+    return;
+  }
+
   if (collection.length === 0) {
     collectionElement.className = "collection empty";
     collectionElement.textContent = "Здесь появятся твои игроки";
@@ -220,17 +248,21 @@ function updateCollection() {
     collectionElement.innerHTML = "";
 
     collection.forEach((player, index) => {
-  const card = createCard(player);
+      const card = createCard(player);
 
-  card.addEventListener("click", () => {
-    selectedCardIndex = index;
-    createDetailsCard(player);
-    detailsModal.classList.remove("hidden");
-    hapticImpact("light");
-  });
+      card.addEventListener("click", () => {
+        selectedCardIndex = index;
+        createDetailsCard(player);
 
-  collectionElement.appendChild(card);
-});
+        if (detailsModal) {
+          detailsModal.classList.remove("hidden");
+        }
+
+        hapticImpact("light");
+      });
+
+      collectionElement.appendChild(card);
+    });
   }
 
   cardCountElement.textContent = `${collection.length} карт`;
@@ -240,16 +272,33 @@ function openPack() {
   hapticImpact("medium");
 
   if (coins < 10) {
+    if (messageElement) {
+      messageElement.textContent = "Недостаточно монет";
+    }
+
     hapticNotification("error");
-    messageElement.textContent = "Недостаточно монет";
     return;
   }
 
   coins -= 10;
-  coinsElement.textContent = coins;
-  openPackButton.disabled = true;
-  document.querySelector(".pack").classList.add("opening");
-  messageElement.textContent = "Открываем пак...";
+
+  if (coinsElement) {
+    coinsElement.textContent = coins;
+  }
+
+  if (openPackButton) {
+    openPackButton.disabled = true;
+  }
+
+  const packElement = document.querySelector(".pack");
+
+  if (packElement) {
+    packElement.classList.add("opening");
+  }
+
+  if (messageElement) {
+    messageElement.textContent = "Открываем пак...";
+  }
 
   setTimeout(() => {
     const newPlayers = [
@@ -259,82 +308,97 @@ function openPack() {
     ];
 
     collection.push(...newPlayers);
+
     hapticNotification("success");
     saveGame();
     updateCollection();
 
-    newCardsElement.innerHTML = "";
+    if (newCardsElement) {
+      newCardsElement.innerHTML = "";
 
-    newPlayers.forEach((player, index) => {
-      const card = createCard(player);
-      card.style.animationDelay = `${index * 120}ms`;
-      newCardsElement.appendChild(card);
-    });
+      newPlayers.forEach((player, index) => {
+        const card = createCard(player);
+        card.style.animationDelay = `${index * 120}ms`;
+        newCardsElement.appendChild(card);
+      });
+    }
 
-    document.querySelector(".pack").classList.remove("opening");
-    modal.classList.remove("hidden");
-    openPackButton.disabled = false;
-    messageElement.textContent =
-      "В паке находятся 3 случайные карточки";
+    if (packElement) {
+      packElement.classList.remove("opening");
+    }
+
+    if (modal) {
+      modal.classList.remove("hidden");
+    }
+
+    if (openPackButton) {
+      openPackButton.disabled = false;
+    }
+
+    if (messageElement) {
+      messageElement.textContent =
+        "В паке находятся 3 случайные карточки";
+    }
   }, 700);
 }
 
-openPackButton.addEventListener("click", openPack);
+if (openPackButton) {
+  openPackButton.addEventListener("click", openPack);
+}
 
-closeModalButton.addEventListener("click", () => {
-  modal.classList.add("hidden");
-});
-
-modal.addEventListener("click", (event) => {
-  if (event.target === modal) {
+if (closeModalButton && modal) {
+  closeModalButton.addEventListener("click", () => {
     modal.classList.add("hidden");
-  }
-});
+  });
+}
 
-updateCollection();
+if (modal) {
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      modal.classList.add("hidden");
+    }
+  });
+}
+
+if (closeDetailsButton && detailsModal) {
+  closeDetailsButton.addEventListener("click", () => {
+    detailsModal.classList.add("hidden");
+  });
+}
+
+if (detailsModal) {
+  detailsModal.addEventListener("click", (event) => {
+    if (event.target === detailsModal) {
+      detailsModal.classList.add("hidden");
+    }
+  });
+}
+
+if (deleteCardButton && detailsModal) {
+  deleteCardButton.addEventListener("click", () => {
+    if (selectedCardIndex === null) {
+      return;
+    }
+
+    collection.splice(selectedCardIndex, 1);
+    selectedCardIndex = null;
+
+    saveGame();
+    updateCollection();
+
+    detailsModal.classList.add("hidden");
+    hapticNotification("warning");
+  });
+}
 
 const resetGameButton = document.querySelector("#resetGame");
 
-resetGameButton.addEventListener("click", () => {
-  localStorage.removeItem("goldenPitchCoins");
-  localStorage.removeItem("goldenPitchCollection");
-  location.reload();
-});
+if (resetGameButton) {
+  resetGameButton.addEventListener("click", () => {
+    localStorage.removeItem("goldenPitchCoins");
+    localStorage.removeItem("goldenPitchCollection");
+    location.reload();
+  });
+}
 
-const closeTelegramApp = document.querySelector("#closeTelegramApp");
-
-closeTelegramApp.addEventListener("click", () => {
-  if (telegramApp) {
-    telegramApp.close();
-  }
-});
-
-console.log({
-  telegramApp,
-  initData: telegramApp?.initData,
-  user: telegramApp?.initDataUnsafe?.user
-});
-
-closeDetailsButton.addEventListener("click", () => {
-  detailsModal.classList.add("hidden");
-});
-
-detailsModal.addEventListener("click", (event) => {
-  if (event.target === detailsModal) {
-    detailsModal.classList.add("hidden");
-  }
-});
-
-deleteCardButton.addEventListener("click", () => {
-  if (selectedCardIndex === null) {
-    return;
-  }
-
-  collection.splice(selectedCardIndex, 1);
-  selectedCardIndex = null;
-
-  saveGame();
-  updateCollection();
-  detailsModal.classList.add("hidden");
-  hapticNotification("warning");
-});
+updateCollection();
