@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Golden Pitch</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">ФУТБОЛЬНАЯ КОЛЛЕКЦИЯ</p>
+        <h1>Golden Pitch</h1>
+      </div>
+
+      <div class="coins">
+        <span>◆</span>
+        <strong id="coins">100</strong>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="ball">⚽</div>
+      <p class="eyebrow">СЕЗОН 01</p>
+      <h2>Собери свою<br>золотую лигу</h2>
+      <p class="description">
+        Открывай паки и находи уникальных игроков вымышленной лиги.
+      </p>
+    </section>
+
+    <section class="pack-section">
+      <div class="pack">
+        <div class="pack-shine"></div>
+        <div class="pack-logo">GP</div>
+        <h3>GOLDEN<br>PITCH</h3>
+        <p>PLAYER PACK</p>
+        <div class="pack-star">★</div>
+      </div>
+
+      <button id="openPack" class="gold-button">
+        Открыть пак
+        <span>10 ◆</span>
+      </button>
+
+      <p id="message" class="message">В паке находятся 3 случайные карточки</p>
+    </section>
+
+    <section class="collection-section">
+      <div class="section-heading">
+        <h2>Моя коллекция</h2>
+        <span id="cardCount">0 карт</span>
+      </div>
+
+      <div id="collection" class="collection empty">
+      Здесь появятся твои игроки
+      </div>
+    </section>
+  </main>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="closeModal" class="close-button">×</button>
+      <p class="eyebrow">ТВОИ НОВЫЕ КАРТЫ</p>
+      <h2>Отличный улов!</h2>
+      <div id="newCards" class="new-cards"></div>
+    </div>
+  </div>
+
+  <button id="resetGame" class="reset-button">
+  Сбросить тестовую игру
+</button>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

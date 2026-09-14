@@ -1,0 +1,379 @@
+:root {
+  --black: #11100d;
+  --dark: #1d1a13;
+  --gold: #dcae4d;
+  --light-gold: #ffe4a0;
+  --muted: #a69b82;
+  --border: rgba(255, 220, 140, 0.24);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  color: #fff8e8;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at 50% 0%, #55401b 0, transparent 35%),
+    linear-gradient(145deg, #0d0c0a, #272015 50%, #0f0e0c);
+}
+
+button {
+  font: inherit;
+}
+
+.app {
+  width: min(100%, 480px);
+  margin: 0 auto;
+  padding: 24px 18px 40px;
+}
+
+.topbar,
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-family: Georgia, serif;
+  font-size: 28px;
+  letter-spacing: 1px;
+}
+
+h2 {
+  margin-bottom: 12px;
+  font-family: Georgia, serif;
+  font-size: 30px;
+  line-height: 1.05;
+}
+
+.coins {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--light-gold);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.hero {
+  padding: 70px 4px 35px;
+}
+
+.ball {
+  margin-bottom: 24px;
+  font-size: 46px;
+}
+
+.description {
+  max-width: 290px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.pack-section {
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  text-align: center;
+  background: rgba(255, 215, 120, 0.06);
+}
+
+.pack {
+  position: relative;
+  width: 170px;
+  height: 235px;
+  margin: 0 auto 24px;
+  padding: 34px 15px;
+  overflow: hidden;
+  border: 2px solid #ffe29a;
+  border-radius: 13px;
+  color: #251b09;
+  background:
+    linear-gradient(135deg, #8c641e, #f5d77d 45%, #9c701f 70%, #ffe7a0);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.4);
+  transform: rotate(-3deg);
+}
+
+.pack-shine {
+  position: absolute;
+  inset: -40px;
+  background: linear-gradient(
+    110deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.55),
+    transparent 60%
+  );
+  transform: rotate(15deg);
+}
+
+.pack-logo,
+.pack h3,
+.pack p,
+.pack-star {
+  position: relative;
+}
+
+.pack-logo {
+  width: 45px;
+  margin: 0 auto 24px;
+  padding: 8px 4px;
+  border: 2px solid #251b09;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+.pack h3 {
+  margin-bottom: 8px;
+  font-family: Georgia, serif;
+  font-size: 25px;
+  line-height: 0.9;
+}
+
+.pack p {
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.pack-star {
+  margin-top: 19px;
+  font-size: 25px;
+}
+
+.gold-button {
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  border-radius: 13px;
+  color: #241a08;
+  font-weight: bold;
+  background: linear-gradient(135deg, #f8d779, #b98127);
+  cursor: pointer;
+}
+
+.gold-button span {
+  margin-left: 8px;
+  opacity: 0.75;
+}
+
+.gold-button:active {
+  transform: scale(0.98);
+}
+
+.gold-button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.message {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.collection-section {
+  margin-top: 36px;
+}
+
+.section-heading h2 {
+  margin-bottom: 0;
+  font-size: 22px;
+}
+
+.section-heading span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.collection.empty {
+  padding: 35px 10px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.collection,
+.new-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.card {
+  padding: 10px 7px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: center;
+  background: linear-gradient(145deg, #aa7928, #f3cd70 45%, #765018);
+  color: #241a08;
+  animation: appear 0.4s ease both;
+}
+
+.card-emoji {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 35px;
+}
+
+.card-name {
+  min-height: 28px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.card-rarity {
+  font-size: 9px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.78);
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  position: relative;
+  width: min(100%, 420px);
+  padding: 28px 18px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  text-align: center;
+  background: #201b11;
+}
+
+.modal-content h2 {
+  font-size: 26px;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  border: 0;
+  color: white;
+  background: none;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.reset-button {
+  display: block;
+  margin: 28px auto 0;
+  border: 0;
+  color: #887b63;
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.card {
+  position: relative;
+  min-height: 190px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #f5d77d;
+  border-radius: 14px;
+  background:
+    linear-gradient(rgba(220, 174, 77, 0.18), rgba(80, 48, 10, 0.7)),
+    url("assets/golden-pitch-gold-texture.png") center / cover;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.card-rating {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  left: 9px;
+  font-family: Georgia, serif;
+  font-size: 23px;
+  font-weight: bold;
+  color: #fff1b7;
+  text-shadow: 1px 1px 2px #211605;
+}
+
+.card-position {
+  position: absolute;
+  z-index: 2;
+  top: 35px;
+  left: 11px;
+  color: #fff1b7;
+  font-size: 9px;
+  font-weight: bold;
+}
+
+.player-image {
+  display: block;
+  width: 100%;
+  height: 125px;
+  object-fit: cover;
+  object-position: center top;
+  background: linear-gradient(#6c4a15, #d8aa45);
+}
+
+.card-info {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 8px 5px;
+  color: #fff3c4;
+  background: linear-gradient(transparent, rgba(30, 18, 3, 0.95));
+}
+
+.card-name {
+  min-height: auto;
+  margin-bottom: 3px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.card-rarity {
+  font-size: 8px;
+  color: #f5d77d;
+  text-transform: uppercase;
+}
