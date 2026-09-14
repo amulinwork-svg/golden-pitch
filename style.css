@@ -468,3 +468,29 @@ body {
     linear-gradient(rgba(132, 52, 173, 0.25), rgba(46, 17, 67, 0.8)),
     url("assets/golden-pitch-gold-texture.png") center / cover;
 }
+
+.pack.opening {
+  animation: packOpening 0.7s ease-in-out;
+}
+
+@keyframes packOpening {
+  0% {
+    transform: rotate(-3deg) scale(1);
+  }
+
+  25% {
+    transform: rotate(3deg) scale(1.06);
+  }
+
+  50% {
+    transform: rotate(-5deg) scale(1.1);
+  }
+
+  75% {
+    transform: rotate(4deg) scale(1.06);
+  }
+
+  100% {
+    transform: rotate(-3deg) scale(1);
+  }
+}
