@@ -377,3 +377,45 @@ h2 {
   color: #f5d77d;
   text-transform: uppercase;
 }
+
+.telegram-greeting {
+  margin-bottom: 18px;
+  color: #d9bd75;
+  font-size: 13px;
+}
+
+.telegram-greeting.hidden {
+  display: none;
+}
+
+body {
+  background-color: var(--tg-theme-bg-color, #11100d);
+  color: var(--tg-theme-text-color, #fff8e8);
+}
+
+.app {
+  color: var(--tg-theme-text-color, #fff8e8);
+}
+
+.telegram-close {
+  display: none;
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .telegram-close {
+    display: block;
+  }
+
+  .topbar {
+    position: relative;
+    padding-top: 25px;
+  }
+}

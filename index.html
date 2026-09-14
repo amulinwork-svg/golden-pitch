@@ -3,14 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1d1a13">
   <title>Golden Pitch</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="app">
-    <header class="topbar">
-      <div>
+  <div id="telegramGreeting" class="telegram-greeting hidden"></div>
+    
+  <header class="topbar">
+    <button id="closeTelegramApp" class="telegram-close">
+      Закрыть
+    </button>
+      
+    <div>
         <p class="eyebrow">ФУТБОЛЬНАЯ КОЛЛЕКЦИЯ</p>
         <h1>Golden Pitch</h1>
       </div>
