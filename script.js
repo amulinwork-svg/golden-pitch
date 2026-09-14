@@ -1,5 +1,3 @@
-alert("Новая версия script.js загрузилась");
-
 const telegramApp = window.Telegram?.WebApp;
 
 if (telegramApp) {
