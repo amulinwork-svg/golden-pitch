@@ -46,6 +46,7 @@ button {
 
 .topbar,
 .section-heading {
+  margin: 0 0 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -432,5 +433,10 @@ body {
 @media (max-width: 600px) {
   .telegram-close {
     display: block;
+  }
+
+  .topbar {
+    position: relative;
+    padding-top: 58px;
   }
 }
