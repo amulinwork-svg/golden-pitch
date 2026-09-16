@@ -18,39 +18,52 @@ function hapticNotification(type = "success") {
 }
 
 function setupTelegramMainButton() {
-  if (!telegramApp?.MainButton) {
+  const mainButton = telegramApp?.MainButton;
+
+  if (!mainButton) {
     return;
   }
 
-  telegramApp.MainButton.setParams({
-    text: "ОТКРЫТЬ ПАК · 10 ◆",
+  mainButton.setParams({
     color: "#dcae4d",
     text_color: "#241a08",
-    is_active: true,
-    is_visible: true
+    is_active: true
   });
 
-  telegramApp.MainButton.onClick(() => {
-    openPack();
-  });
+  mainButton.setText("ОТКРЫТЬ ПАК · 10 ◆");
+  mainButton.onClick(openPack);
+  mainButton.show();
 }
 
 function updateTelegramMainButton() {
-  if (!telegramApp?.MainButton) {
+  const mainButton = telegramApp?.MainButton;
+
+  if (!mainButton) {
     return;
   }
 
   if (coins < 10) {
-    telegramApp.MainButton.setParams({
-      text: "НЕДОСТАТОЧНО МОНЕТ",
+    mainButton.setParams({
       color: "#6b6252",
       text_color: "#d2c5a4",
-      is_active: false,
-      is_visible: true
+      is_active: false
     });
+
+    mainButton.setText("НЕДОСТАТОЧНО МОНЕТ");
+    mainButton.show();
 
     return;
   }
+
+  mainButton.setParams({
+    color: "#dcae4d",
+    text_color: "#241a08",
+    is_active: true
+  });
+
+  mainButton.setText("ОТКРЫТЬ ПАК · 10 ◆");
+  mainButton.show();
+}
 
   telegramApp.MainButton.setParams({
     text: "ОТКРЫТЬ ПАК · 10 ◆",
@@ -59,7 +72,7 @@ function updateTelegramMainButton() {
     is_active: true,
     is_visible: true
   });
-}
+
 
 const players = [
   {
@@ -585,5 +598,17 @@ if (telegramGreeting) {
   }
 }
 
+console.log("Telegram app:", telegramApp);
+console.log("MainButton:", telegramApp?.MainButton);
+console.log("Version:", telegramApp?.version);
+const telegramDebug = document.querySelector("#telegramDebug");
+
+if (telegramDebug) {
+  telegramDebug.textContent =
+    `Telegram: ${Boolean(telegramApp)} | ` +
+    `MainButton: ${Boolean(telegramApp?.MainButton)} | ` +
+    `Версия: ${telegramApp?.version || "нет"}`;
+}
 loadGame();
 setupTelegramMainButton();
+updateTelegramMainButton();
