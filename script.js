@@ -430,21 +430,79 @@ if (detailsModal) {
   });
 }
 
-if (deleteCardButton && detailsModal) {
-  deleteCardButton.addEventListener("click", () => {
-    if (selectedCardIndex === null) {
-      return;
-    }
+function deleteSelectedCard() {
+  if (selectedCardIndex === null) {
+    return;
+  }
 
-    collection.splice(selectedCardIndex, 1);
-    selectedCardIndex = null;
+  collection.splice(selectedCardIndex, 1);
+  selectedCardIndex = null;
 
-    saveGame();
-    updateCollection();
+  saveGame();
+  updateCollection();
 
+  if (detailsModal) {
     detailsModal.classList.add("hidden");
-    hapticNotification("warning");
-  });
+  }
+
+  hapticNotification("warning");
+
+  if (messageElement) {
+    messageElement.textContent =
+      "Карточка удалена из коллекции";
+  }
+}
+
+function confirmDeleteCard() {
+  if (selectedCardIndex === null) {
+    return;
+  }
+
+  const selectedPlayer = collection[selectedCardIndex];
+
+  if (telegramApp?.showPopup) {
+    telegramApp.showPopup(
+      {
+        title: "Удалить карточку?",
+        message:
+          `Карточка «${selectedPlayer.name}» будет удалена из коллекции.`,
+        buttons: [
+          {
+            id: "delete",
+            type: "destructive",
+            text: "Удалить"
+          },
+          {
+            id: "cancel",
+            type: "cancel",
+            text: "Отмена"
+          }
+        ]
+      },
+      (buttonId) => {
+        if (buttonId === "delete") {
+          deleteSelectedCard();
+        }
+      }
+    );
+
+    return;
+  }
+
+  const confirmed = window.confirm(
+    `Удалить карточку «${selectedPlayer.name}»?`
+  );
+
+  if (confirmed) {
+    deleteSelectedCard();
+  }
+}
+
+if (deleteCardButton) {
+  deleteCardButton.addEventListener(
+    "click",
+    confirmDeleteCard
+  );
 }
 
 if (resetGameButton) {
