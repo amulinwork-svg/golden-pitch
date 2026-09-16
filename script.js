@@ -21,6 +21,37 @@ function hapticNotification(type = "success") {
   }
 }
 
+function getTelegramInitData() {
+  if (!telegramApp) {
+    return "";
+  }
+
+  return telegramApp.initData || "";
+}
+
+function showAuthStatus() {
+  if (!telegramApp) {
+    return;
+  }
+
+  const initData = getTelegramInitData();
+
+  if (!initData) {
+    console.warn(
+      "Telegram initData отсутствует. " +
+      "Приложение открыто не через Mini App."
+    );
+
+    return;
+  }
+
+  console.log(
+    "Telegram initData получен. " +
+    "Длина:",
+    initData.length
+  );
+}
+
 const players = [
   {
     id: "luka-veil",
@@ -954,6 +985,7 @@ if (telegramGreeting) {
   }
 }
 
+showAuthStatus();
 loadGame();
 
 if (telegramApp?.MainButton) {
