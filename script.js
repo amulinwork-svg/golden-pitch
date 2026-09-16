@@ -18,51 +18,19 @@ function hapticNotification(type = "success") {
 }
 
 function setupTelegramMainButton() {
-  const mainButton = telegramApp?.MainButton;
-
-  if (!mainButton) {
+  if (!telegramApp?.MainButton) {
     return;
   }
 
-  mainButton.setParams({
-    color: "#dcae4d",
-    text_color: "#241a08",
-    is_active: true
-  });
-
-  mainButton.setText("ОТКРЫТЬ ПАК · 10 ◆");
-  mainButton.onClick(openPack);
-  mainButton.show();
+  telegramApp.MainButton.hide();
 }
 
 function updateTelegramMainButton() {
-  const mainButton = telegramApp?.MainButton;
-
-  if (!mainButton) {
+  if (!telegramApp?.MainButton) {
     return;
   }
 
-  if (coins < 10) {
-    mainButton.setParams({
-      color: "#6b6252",
-      text_color: "#d2c5a4",
-      is_active: false
-    });
-
-    mainButton.setText("НЕДОСТАТОЧНО МОНЕТ");
-    mainButton.show();
-
-    return;
-  }
-
-  mainButton.setParams({
-    color: "#dcae4d",
-    text_color: "#241a08",
-    is_active: true
-  });
-
-  mainButton.setText("ОТКРЫТЬ ПАК · 10 ◆");
-  mainButton.show();
+  telegramApp.MainButton.hide();
 }
 
   telegramApp.MainButton.setParams({
@@ -869,3 +837,5 @@ packButtons.forEach((button) => {
 });
 
 loadGame();
+setupTelegramMainButton();
+updateTelegramMainButton();
