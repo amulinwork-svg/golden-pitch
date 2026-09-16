@@ -113,6 +113,42 @@ let collection = JSON.parse(
   localStorage.getItem("goldenPitchCollection") || "[]"
 );
 
+function loadTelegramGame() {
+  if (!telegramApp?.CloudStorage) {
+    updateCollection();
+    return;
+  }
+
+  telegramApp.CloudStorage.getItems(
+    ["goldenPitchCoins", "goldenPitchCollection"],
+    (error, values) => {
+      if (error) {
+        console.error("Ошибка загрузки Telegram CloudStorage:", error);
+        updateCollection();
+        return;
+      }
+
+      if (values.goldenPitchCoins !== undefined) {
+        coins = Number(values.goldenPitchCoins);
+      }
+
+      if (values.goldenPitchCollection !== undefined) {
+        try {
+          collection = JSON.parse(values.goldenPitchCollection);
+        } catch (parseError) {
+          console.error("Ошибка чтения коллекции:", parseError);
+        }
+      }
+
+      if (coinsElement) {
+        coinsElement.textContent = coins;
+      }
+
+      updateCollection();
+    }
+  );
+}
+
 if (telegramGreeting) {
   const telegramUser = telegramApp?.initDataUnsafe?.user;
 
@@ -230,6 +266,20 @@ function saveGame() {
   localStorage.setItem("goldenPitchCoins", coins);
 
   localStorage.setItem(
+    "goldenPitchCollection",
+    JSON.stringify(collection)
+  );
+
+  if (!telegramApp?.CloudStorage) {
+    return;
+  }
+
+  telegramApp.CloudStorage.setItem(
+    "goldenPitchCoins",
+    String(coins)
+  );
+
+  telegramApp.CloudStorage.setItem(
     "goldenPitchCollection",
     JSON.stringify(collection)
   );
@@ -401,4 +451,4 @@ if (resetGameButton) {
   });
 }
 
-updateCollection();
+loadTelegramGame();
