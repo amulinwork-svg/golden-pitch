@@ -1,6 +1,7 @@
-const telegramApp = window.Telegram?.WebApp;
 const API_URL =
   "https://synthetic-flap-cubical.ngrok-free.dev";
+
+const telegramApp = window.Telegram?.WebApp;
 
 if (telegramApp) {
   telegramApp.ready();
@@ -20,119 +21,6 @@ function hapticImpact(style = "light") {
 function hapticNotification(type = "success") {
   if (telegramApp?.HapticFeedback) {
     telegramApp.HapticFeedback.notificationOccurred(type);
-  }
-}
-
-function getTelegramInitData() {
-  if (!telegramApp) {
-    return "";
-  }
-
-  return telegramApp.initData || "";
-}
-
-function showAuthStatus() {
-  const authStatus =
-    document.querySelector("#authStatus");
-
-  if (!authStatus) {
-    return;
-  }
-
-  if (!telegramApp) {
-    authStatus.textContent =
-      "Telegram API не найден. Обычный браузер.";
-    authStatus.classList.add("warning");
-    return;
-  }
-
-  const initData =
-    telegramApp.initData || "";
-
-  const user =
-    telegramApp.initDataUnsafe?.user;
-
-  if (!initData) {
-    authStatus.textContent =
-      "Telegram найден, но initData отсутствует. " +
-      "Открой приложение через кнопку меню бота.";
-    authStatus.classList.add("warning");
-    return;
-  }
-
-  if (!user) {
-    authStatus.textContent =
-      "initData получен, но пользователь не найден.";
-    authStatus.classList.add("warning");
-    return;
-  }
-
-  authStatus.textContent =
-    `Telegram OK · ${user.first_name || "Игрок"} · ` +
-    `initData получен (${initData.length} символов)`;
-
-  authStatus.classList.add("success");
-}
-
-async function checkServer() {
-  const authStatus =
-    document.querySelector("#authStatus");
-
-  if (!telegramApp?.initData) {
-    if (authStatus) {
-      authStatus.textContent =
-        "Telegram initData отсутствует";
-      authStatus.classList.add("warning");
-    }
-
-    return;
-  }
-
-  try {
-    const response = await fetch(
-      `${API_URL}/api/auth`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          initData: telegramApp.initData
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok || !data.success) {
-      throw new Error(
-        data.error || "Авторизация не прошла"
-      );
-    }
-
-    if (authStatus) {
-      const userName =
-        data.user?.first_name || "игрок";
-
-      authStatus.textContent =
-        `Сервер подтвердил Telegram: ${userName}`;
-
-      authStatus.classList.remove("warning");
-      authStatus.classList.add("success");
-    }
-  } catch (error) {
-    console.error(
-      "Ошибка серверной авторизации:",
-      error
-    );
-
-    if (authStatus) {
-      authStatus.textContent =
-        `Ошибка авторизации: ${error.message}`;
-
-      authStatus.classList.remove("success");
-      authStatus.classList.add("warning");
-    }
   }
 }
 
@@ -218,14 +106,12 @@ const packTypes = {
     rareBonus: 0,
     epicBonus: 0
   },
-
   premium: {
     price: 25,
     cards: 5,
     rareBonus: 0.15,
     epicBonus: 0.05
   },
-
   elite: {
     price: 50,
     cards: 7,
@@ -240,18 +126,22 @@ const XP_PER_PACK = 20;
 const XP_PER_LEVEL = 100;
 const LEVEL_REWARD = 50;
 
-const openPackButton = document.querySelector("#openPack");
-const packButtons = document.querySelectorAll(".buy-pack");
-
 const coinsElement = document.querySelector("#coins");
 const messageElement = document.querySelector("#message");
 
-const modal = document.querySelector("#modal");
-const newCardsElement = document.querySelector("#newCards");
-const closeModalButton = document.querySelector("#closeModal");
+const packButtons =
+  document.querySelectorAll(".buy-pack");
 
-const collectionElement = document.querySelector("#collection");
-const cardCountElement = document.querySelector("#cardCount");
+const modal = document.querySelector("#modal");
+const newCardsElement =
+  document.querySelector("#newCards");
+const closeModalButton =
+  document.querySelector("#closeModal");
+
+const collectionElement =
+  document.querySelector("#collection");
+const cardCountElement =
+  document.querySelector("#cardCount");
 
 const filterButtons =
   document.querySelectorAll(".filter-button");
@@ -295,14 +185,15 @@ const experienceFill =
 const levelMessage =
   document.querySelector("#levelMessage");
 
+const authStatus =
+  document.querySelector("#authStatus");
+
 let coins = 100;
 let collection = [];
 let selectedCardIndex = null;
 let activeFilter = "Все";
-
 let experience = 0;
 let level = 1;
-
 let lastBonusTime = 0;
 
 function loadGame() {
@@ -321,15 +212,16 @@ function loadGame() {
   const savedBonusTime =
     localStorage.getItem("goldenPitchLastBonus");
 
-  coins = savedCoins === null
-    ? 100
-    : Number(savedCoins);
+  coins =
+    savedCoins === null
+      ? 100
+      : Number(savedCoins);
 
   if (!Number.isFinite(coins)) {
     coins = 100;
   }
 
-  if (savedCollection === null) {
+  if (!savedCollection) {
     collection = [];
   } else {
     try {
@@ -349,9 +241,10 @@ function loadGame() {
     }
   }
 
-  experience = savedExperience === null
-    ? 0
-    : Number(savedExperience);
+  experience =
+    savedExperience === null
+      ? 0
+      : Number(savedExperience);
 
   if (
     !Number.isFinite(experience) ||
@@ -360,9 +253,10 @@ function loadGame() {
     experience = 0;
   }
 
-  level = savedLevel === null
-    ? 1
-    : Number(savedLevel);
+  level =
+    savedLevel === null
+      ? 1
+      : Number(savedLevel);
 
   if (
     !Number.isFinite(level) ||
@@ -371,9 +265,10 @@ function loadGame() {
     level = 1;
   }
 
-  lastBonusTime = savedBonusTime === null
-    ? 0
-    : Number(savedBonusTime);
+  lastBonusTime =
+    savedBonusTime === null
+      ? 0
+      : Number(savedBonusTime);
 
   if (
     !Number.isFinite(lastBonusTime) ||
@@ -418,9 +313,120 @@ function updateCoinsDisplay() {
   }
 }
 
+function updateProgress() {
+  if (
+    !levelName ||
+    !experienceText ||
+    !experienceFill
+  ) {
+    return;
+  }
+
+  levelName.textContent =
+    `УРОВЕНЬ ${level}`;
+
+  experienceText.textContent =
+    `${experience} / ${XP_PER_LEVEL} XP`;
+
+  experienceFill.style.width =
+    `${Math.min(
+      experience / XP_PER_LEVEL,
+      1
+    ) * 100}%`;
+}
+
+function addExperience(amount) {
+  experience += amount;
+
+  let levelUp = false;
+
+  while (experience >= XP_PER_LEVEL) {
+    experience -= XP_PER_LEVEL;
+    level += 1;
+    coins += LEVEL_REWARD;
+    levelUp = true;
+  }
+
+  saveProgress();
+  saveGame();
+  updateCoinsDisplay();
+  updateProgress();
+
+  if (levelMessage) {
+    levelMessage.textContent = levelUp
+      ? `Новый уровень! +${LEVEL_REWARD} монет`
+      : `Получено +${amount} XP`;
+  }
+
+  if (levelUp) {
+    hapticNotification("success");
+  }
+}
+
+function updateBonusButton() {
+  if (
+    !claimBonusButton ||
+    !bonusMessage
+  ) {
+    return;
+  }
+
+  const timePassed =
+    Date.now() - lastBonusTime;
+
+  if (timePassed >= BONUS_INTERVAL) {
+    claimBonusButton.disabled = false;
+    claimBonusButton.textContent = "Забрать";
+    bonusMessage.textContent =
+      "Ежедневная награда уже доступна";
+    return;
+  }
+
+  claimBonusButton.disabled = true;
+
+  const hoursLeft = Math.ceil(
+    (BONUS_INTERVAL - timePassed) /
+      (60 * 60 * 1000)
+  );
+
+  claimBonusButton.textContent =
+    `Через ${hoursLeft} ч.`;
+
+  bonusMessage.textContent =
+    "Ты уже получил бонус сегодня";
+}
+
+function claimDailyBonus() {
+  if (
+    !claimBonusButton ||
+    Date.now() - lastBonusTime <
+      BONUS_INTERVAL
+  ) {
+    return;
+  }
+
+  coins += DAILY_BONUS;
+  lastBonusTime = Date.now();
+
+  localStorage.setItem(
+    "goldenPitchLastBonus",
+    String(lastBonusTime)
+  );
+
+  saveGame();
+  updateCoinsDisplay();
+  updateBonusButton();
+
+  if (messageElement) {
+    messageElement.textContent =
+      "Ежедневный бонус: +25 монет!";
+  }
+
+  hapticNotification("success");
+}
+
 function choosePlayer(pack) {
   const randomNumber = Math.random();
-
   let selectedRarity = "Обычная";
 
   if (
@@ -435,26 +441,21 @@ function choosePlayer(pack) {
     selectedRarity = "Редкая";
   }
 
-  const rarityPlayers = players.filter(
-    (player) =>
-      player.rarity === selectedRarity
-  );
-
   const availablePlayers =
-    rarityPlayers.length > 0
-      ? rarityPlayers
-      : players;
+    players.filter(
+      (player) =>
+        player.rarity === selectedRarity
+    );
 
-  const randomIndex = Math.floor(
-    Math.random() * availablePlayers.length
-  );
-
-  return availablePlayers[randomIndex];
+  return availablePlayers[
+    Math.floor(
+      Math.random() * availablePlayers.length
+    )
+  ];
 }
 
 function createCard(player) {
   const card = document.createElement("article");
-
   card.className = "card";
 
   if (player.rarity === "Редкая") {
@@ -577,13 +578,10 @@ function updateCollection() {
     collectionElement.className =
       "collection empty";
 
-    if (collection.length === 0) {
-      collectionElement.textContent =
-        "Здесь появятся твои игроки";
-    } else {
-      collectionElement.textContent =
-        "В этой категории пока нет карточек";
-    }
+    collectionElement.textContent =
+      collection.length === 0
+        ? "Здесь появятся твои игроки"
+        : "В этой категории пока нет карточек";
   } else {
     collectionElement.className = "collection";
     collectionElement.innerHTML = "";
@@ -596,7 +594,6 @@ function updateCollection() {
 
       card.addEventListener("click", () => {
         selectedCardIndex = originalIndex;
-
         createDetailsCard(player);
 
         if (detailsModal) {
@@ -612,144 +609,10 @@ function updateCollection() {
     });
   }
 
-  if (activeFilter === "Все") {
-    cardCountElement.textContent =
-      `${collection.length} карт`;
-  } else {
-    cardCountElement.textContent =
-      `${filteredCollection.length} из ` +
-      `${collection.length}`;
-  }
-}
-
-function updateProgress() {
-  if (
-    !levelName ||
-    !experienceText ||
-    !experienceFill
-  ) {
-    return;
-  }
-
-  levelName.textContent =
-    `УРОВЕНЬ ${level}`;
-
-  experienceText.textContent =
-    `${experience} / ${XP_PER_LEVEL} XP`;
-
-  const percent =
-    Math.min(
-      experience / XP_PER_LEVEL,
-      1
-    ) * 100;
-
-  experienceFill.style.width =
-    `${percent}%`;
-}
-
-function addExperience(amount) {
-  experience += amount;
-
-  let levelUp = false;
-
-  while (experience >= XP_PER_LEVEL) {
-    experience -= XP_PER_LEVEL;
-    level += 1;
-    coins += LEVEL_REWARD;
-    levelUp = true;
-  }
-
-  saveProgress();
-  saveGame();
-  updateCoinsDisplay();
-  updateProgress();
-
-  if (!levelMessage) {
-    return;
-  }
-
-  if (levelUp) {
-    levelMessage.textContent =
-      `Новый уровень! +${LEVEL_REWARD} монет`;
-
-    hapticNotification("success");
-  } else {
-    levelMessage.textContent =
-      `Получено +${amount} XP`;
-  }
-}
-
-function updateBonusButton() {
-  if (
-    !claimBonusButton ||
-    !bonusMessage
-  ) {
-    return;
-  }
-
-  const now = Date.now();
-  const timePassed =
-    now - lastBonusTime;
-
-  const timeLeft =
-    BONUS_INTERVAL - timePassed;
-
-  if (timePassed >= BONUS_INTERVAL) {
-    claimBonusButton.disabled = false;
-    claimBonusButton.textContent =
-      "Забрать";
-
-    bonusMessage.textContent =
-      "Ежедневная награда уже доступна";
-
-    return;
-  }
-
-  claimBonusButton.disabled = true;
-
-  const hoursLeft = Math.ceil(
-    timeLeft / (60 * 60 * 1000)
-  );
-
-  claimBonusButton.textContent =
-    `Через ${hoursLeft} ч.`;
-
-  bonusMessage.textContent =
-    "Ты уже получил бонус сегодня";
-}
-
-function claimDailyBonus() {
-  if (!claimBonusButton) {
-    return;
-  }
-
-  const now = Date.now();
-
-  if (
-    now - lastBonusTime <
-    BONUS_INTERVAL
-  ) {
-    return;
-  }
-
-  coins += DAILY_BONUS;
-  lastBonusTime = now;
-
-  localStorage.setItem(
-    "goldenPitchLastBonus",
-    String(lastBonusTime)
-  );
-
-  saveGame();
-  updateCoinsDisplay();
-  updateBonusButton();
-
-  if (messageElement) {
-    messageElement.textContent =
-      "Ежедневный бонус: +25 монет!";
-  }
-
-  hapticNotification("success");
+  cardCountElement.textContent =
+    activeFilter === "Все"
+      ? `${collection.length} карт`
+      : `${filteredCollection.length} из ${collection.length}`;
 }
 
 function openPack(packId = "starter") {
@@ -769,18 +632,12 @@ function openPack(packId = "starter") {
     return;
   }
 
-  hapticImpact("medium");
-
   coins -= pack.price;
   updateCoinsDisplay();
 
   packButtons.forEach((button) => {
     button.disabled = true;
   });
-
-  if (openPackButton) {
-    openPackButton.disabled = true;
-  }
 
   if (messageElement) {
     messageElement.textContent =
@@ -825,10 +682,6 @@ function openPack(packId = "starter") {
       button.disabled = false;
     });
 
-    if (openPackButton) {
-      openPackButton.disabled = false;
-    }
-
     if (messageElement) {
       messageElement.textContent =
         "Выбери пак для открытия";
@@ -836,6 +689,64 @@ function openPack(packId = "starter") {
 
     hapticNotification("success");
   }, 700);
+}
+
+async function checkServer() {
+  if (!telegramApp?.initData) {
+    if (authStatus) {
+      authStatus.textContent =
+        "Telegram initData отсутствует";
+      authStatus.classList.add("warning");
+    }
+
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${API_URL}/api/auth`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          initData: telegramApp.initData
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.error || "Авторизация не прошла"
+      );
+    }
+
+    if (authStatus) {
+      authStatus.textContent =
+        `Сервер подтвердил Telegram: ${
+          data.user?.first_name || "игрок"
+        }`;
+
+      authStatus.classList.remove("warning");
+      authStatus.classList.add("success");
+    }
+  } catch (error) {
+    console.error(
+      "Ошибка серверной авторизации:",
+      error
+    );
+
+    if (authStatus) {
+      authStatus.textContent =
+        `Ошибка авторизации: ${error.message}`;
+
+      authStatus.classList.remove("success");
+      authStatus.classList.add("warning");
+    }
+  }
 }
 
 function deleteSelectedCard() {
@@ -902,11 +813,11 @@ function confirmDeleteCard() {
     return;
   }
 
-  const confirmed = window.confirm(
-    `Удалить карточку «${selectedPlayer.name}»?`
-  );
-
-  if (confirmed) {
+  if (
+    window.confirm(
+      `Удалить карточку «${selectedPlayer.name}»?`
+    )
+  ) {
     deleteSelectedCard();
   }
 }
@@ -946,7 +857,8 @@ function resetGame() {
 
   if (messageElement) {
     messageElement.textContent =
-      "Тестовая игра сброшена. У тебя снова 100 монет.";
+      "Тестовая игра сброшена. " +
+      "У тебя снова 100 монет.";
   }
 
   if (modal) {
@@ -963,8 +875,7 @@ function resetGame() {
 if (packButtons.length > 0) {
   packButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      const packId = button.dataset.pack;
-      openPack(packId);
+      openPack(button.dataset.pack);
     });
   });
 }
@@ -1009,10 +920,7 @@ if (modal) {
   });
 }
 
-if (
-  closeDetailsButton &&
-  detailsModal
-) {
+if (closeDetailsButton && detailsModal) {
   closeDetailsButton.addEventListener(
     "click",
     () => {
@@ -1063,15 +971,18 @@ if (telegramGreeting) {
 
   if (telegramUser) {
     telegramGreeting.textContent =
-      `Привет, ${telegramUser.first_name || "игрок"}!`;
+      `Привет, ${
+        telegramUser.first_name || "игрок"
+      }!`;
 
-    telegramGreeting.classList.remove("hidden");
+    telegramGreeting.classList.remove(
+      "hidden"
+    );
   }
 }
 
-showAuthStatus();
-checkServer();
 loadGame();
+checkServer();
 
 if (telegramApp?.MainButton) {
   telegramApp.MainButton.hide();
