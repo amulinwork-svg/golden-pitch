@@ -462,14 +462,16 @@ if (resetGameButton) {
             );
           }
 
-          location.reload();
+          window.location.href =
+            window.location.pathname + "?reset=" + Date.now();
         }
       );
 
       return;
     }
 
-    location.reload();
+    window.location.href =
+      window.location.pathname + "?reset=" + Date.now();
   });
 }
 
