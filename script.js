@@ -6,11 +6,15 @@ if (telegramApp) {
 }
 
 function hapticImpact(style = "light") {
-  telegramApp?.HapticFeedback?.impactOccurred(style);
+  if (telegramApp?.HapticFeedback) {
+    telegramApp.HapticFeedback.impactOccurred(style);
+  }
 }
 
 function hapticNotification(type = "success") {
-  telegramApp?.HapticFeedback?.notificationOccurred(type);
+  if (telegramApp?.HapticFeedback) {
+    telegramApp.HapticFeedback.notificationOccurred(type);
+  }
 }
 
 const players = [
@@ -91,11 +95,13 @@ const players = [
 const openPackButton = document.querySelector("#openPack");
 const coinsElement = document.querySelector("#coins");
 const messageElement = document.querySelector("#message");
+
 const modal = document.querySelector("#modal");
 const newCardsElement = document.querySelector("#newCards");
+const closeModalButton = document.querySelector("#closeModal");
+
 const collectionElement = document.querySelector("#collection");
 const cardCountElement = document.querySelector("#cardCount");
-const closeModalButton = document.querySelector("#closeModal");
 
 const telegramGreeting = document.querySelector("#telegramGreeting");
 const closeTelegramApp = document.querySelector("#closeTelegramApp");
@@ -105,13 +111,12 @@ const detailsCard = document.querySelector("#detailsCard");
 const closeDetailsButton = document.querySelector("#closeDetails");
 const deleteCardButton = document.querySelector("#deleteCard");
 
+const resetGameButton = document.querySelector("#resetGame");
+
 let selectedCardIndex = null;
 
-let coins = Number(localStorage.getItem("goldenPitchCoins")) || 100;
-
-let collection = JSON.parse(
-  localStorage.getItem("goldenPitchCollection") || "[]"
-);
+let coins = 100;
+let collection = [];
 
 function loadGame() {
   const savedCoins = localStorage.getItem("goldenPitchCoins");
@@ -119,44 +124,77 @@ function loadGame() {
     "goldenPitchCollection"
   );
 
-  coins = savedCoins === null ? 100 : Number(savedCoins);
+  if (savedCoins === null) {
+    coins = 100;
+  } else {
+    coins = Number(savedCoins);
 
-  try {
-    collection = savedCollection
-      ? JSON.parse(savedCollection)
-      : [];
-  } catch (error) {
-    console.error("Ошибка чтения коллекции:", error);
+    if (!Number.isFinite(coins)) {
+      coins = 100;
+    }
+  }
+
+  if (savedCollection === null) {
     collection = [];
+  } else {
+    try {
+      const parsedCollection = JSON.parse(savedCollection);
+      collection = Array.isArray(parsedCollection)
+        ? parsedCollection
+        : [];
+    } catch (error) {
+      console.error("Ошибка загрузки коллекции:", error);
+      collection = [];
+    }
   }
 
-  if (coinsElement) {
-    coinsElement.textContent = coins;
-  }
-
+  updateCoinsDisplay();
   updateCollection();
 }
 
-if (telegramGreeting) {
-  const telegramUser = telegramApp?.initDataUnsafe?.user;
+function saveGame() {
+  localStorage.setItem(
+    "goldenPitchCoins",
+    String(coins)
+  );
 
-  if (telegramUser) {
-    telegramGreeting.textContent =
-      `Привет, ${telegramUser.first_name || "игрок"}!`;
-    telegramGreeting.classList.remove("hidden");
+  localStorage.setItem(
+    "goldenPitchCollection",
+    JSON.stringify(collection)
+  );
+}
+
+function resetGame() {
+  localStorage.removeItem("goldenPitchCoins");
+  localStorage.removeItem("goldenPitchCollection");
+
+  coins = 100;
+  collection = [];
+  selectedCardIndex = null;
+
+  updateCoinsDisplay();
+  updateCollection();
+
+  if (messageElement) {
+    messageElement.textContent =
+      "Тестовая игра сброшена. У тебя снова 100 монет.";
   }
+
+  if (modal) {
+    modal.classList.add("hidden");
+  }
+
+  if (detailsModal) {
+    detailsModal.classList.add("hidden");
+  }
+
+  hapticNotification("success");
 }
 
-if (closeTelegramApp) {
-  closeTelegramApp.addEventListener("click", () => {
-    if (telegramApp) {
-      telegramApp.close();
-    }
-  });
-}
-
-if (coinsElement) {
-  coinsElement.textContent = coins;
+function updateCoinsDisplay() {
+  if (coinsElement) {
+    coinsElement.textContent = coins;
+  }
 }
 
 function choosePlayer() {
@@ -250,15 +288,6 @@ function createDetailsCard(player) {
   `;
 }
 
-function saveGame() {
-  localStorage.setItem("goldenPitchCoins", String(coins));
-
-  localStorage.setItem(
-    "goldenPitchCollection",
-    JSON.stringify(collection)
-  );
-}
-
 function updateCollection() {
   if (!collectionElement || !cardCountElement) {
     return;
@@ -266,7 +295,8 @@ function updateCollection() {
 
   if (collection.length === 0) {
     collectionElement.className = "collection empty";
-    collectionElement.textContent = "Здесь появятся твои игроки";
+    collectionElement.textContent =
+      "Здесь появятся твои игроки";
   } else {
     collectionElement.className = "collection";
     collectionElement.innerHTML = "";
@@ -289,26 +319,25 @@ function updateCollection() {
     });
   }
 
-  cardCountElement.textContent = `${collection.length} карт`;
+  cardCountElement.textContent =
+    `${collection.length} карт`;
 }
 
 function openPack() {
-  hapticImpact("medium");
-
   if (coins < 10) {
     if (messageElement) {
-      messageElement.textContent = "Недостаточно монет";
+      messageElement.textContent =
+        "Недостаточно монет";
     }
 
     hapticNotification("error");
     return;
   }
 
-  coins -= 10;
+  hapticImpact("medium");
 
-  if (coinsElement) {
-    coinsElement.textContent = coins;
-  }
+  coins -= 10;
+  updateCoinsDisplay();
 
   if (openPackButton) {
     openPackButton.disabled = true;
@@ -321,7 +350,8 @@ function openPack() {
   }
 
   if (messageElement) {
-    messageElement.textContent = "Открываем пак...";
+    messageElement.textContent =
+      "Открываем пак...";
   }
 
   setTimeout(() => {
@@ -332,8 +362,6 @@ function openPack() {
     ];
 
     collection.push(...newPlayers);
-
-    hapticNotification("success");
     saveGame();
     updateCollection();
 
@@ -342,7 +370,9 @@ function openPack() {
 
       newPlayers.forEach((player, index) => {
         const card = createCard(player);
-        card.style.animationDelay = `${index * 120}ms`;
+        card.style.animationDelay =
+          `${index * 120}ms`;
+
         newCardsElement.appendChild(card);
       });
     }
@@ -363,6 +393,8 @@ function openPack() {
       messageElement.textContent =
         "В паке находятся 3 случайные карточки";
     }
+
+    hapticNotification("success");
   }, 700);
 }
 
@@ -415,27 +447,27 @@ if (deleteCardButton && detailsModal) {
   });
 }
 
-const resetGameButton = document.querySelector("#resetGame");
-
 if (resetGameButton) {
-  resetGameButton.addEventListener("click", () => {
-    localStorage.removeItem("goldenPitchCoins");
-    localStorage.removeItem("goldenPitchCollection");
+  resetGameButton.addEventListener("click", resetGame);
+}
 
-    coins = 100;
-    collection = [];
-
-    if (coinsElement) {
-      coinsElement.textContent = coins;
+if (closeTelegramApp) {
+  closeTelegramApp.addEventListener("click", () => {
+    if (telegramApp) {
+      telegramApp.close();
     }
-
-    updateCollection();
-
-    messageElement.textContent =
-      "Тестовая игра сброшена";
-
-    hapticNotification("success");
   });
+}
+
+if (telegramGreeting) {
+  const telegramUser = telegramApp?.initDataUnsafe?.user;
+
+  if (telegramUser) {
+    telegramGreeting.textContent =
+      `Привет, ${telegramUser.first_name || "игрок"}!`;
+
+    telegramGreeting.classList.remove("hidden");
+  }
 }
 
 loadGame();
