@@ -88,7 +88,7 @@ async function checkServer() {
 
   try {
     const response = await fetch(
-      "http://localhost:3000/api/auth",
+      "https://synthetic-flap-cubical.ngrok-free.dev",
       {
         method: "POST",
         headers: {
