@@ -68,14 +68,32 @@
     </section>
 
     <section class="collection-section">
-      <div class="section-heading">
-        <h2>Моя коллекция</h2>
-        <span id="cardCount">0 карт</span>
-      </div>
+  <div class="section-heading">
+    <h2>Моя коллекция</h2>
+    <span id="cardCount">0 карт</span>
+  </div>
 
-      <div id="collection" class="collection empty">
-      Здесь появятся твои игроки
-      </div>
+  <div class="filters">
+    <button class="filter-button active" data-filter="Все">
+      Все
+    </button>
+
+    <button class="filter-button" data-filter="Обычная">
+      Обычные
+    </button>
+
+    <button class="filter-button" data-filter="Редкая">
+      Редкие
+    </button>
+
+    <button class="filter-button" data-filter="Эпическая">
+      Эпические
+    </button>
+  </div>
+
+  <div id="collection" class="collection empty">
+    Здесь появятся твои игроки
+  </div>
     </section>
     <div id="telegramDebug"></div>
   </main>

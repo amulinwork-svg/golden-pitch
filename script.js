@@ -169,6 +169,11 @@ const closeDetailsButton = document.querySelector("#closeDetails");
 const deleteCardButton = document.querySelector("#deleteCard");
 
 const resetGameButton = document.querySelector("#resetGame");
+const filterButtons =
+  document.querySelectorAll(".filter-button");
+
+let activeFilter = "Все";
+
 const claimBonusButton =
   document.querySelector("#claimBonus");
 
@@ -425,19 +430,33 @@ function updateCollection() {
     return;
   }
 
-  if (collection.length === 0) {
+  const filteredCollection =
+    activeFilter === "Все"
+      ? collection
+      : collection.filter(
+          (player) => player.rarity === activeFilter
+        );
+
+  if (filteredCollection.length === 0) {
     collectionElement.className = "collection empty";
-    collectionElement.textContent =
-      "Здесь появятся твои игроки";
+
+    if (collection.length === 0) {
+      collectionElement.textContent =
+        "Здесь появятся твои игроки";
+    } else {
+      collectionElement.textContent =
+        "В этой категории пока нет карточек";
+    }
   } else {
     collectionElement.className = "collection";
     collectionElement.innerHTML = "";
 
-    collection.forEach((player, index) => {
+    filteredCollection.forEach((player) => {
+      const originalIndex = collection.indexOf(player);
       const card = createCard(player);
 
       card.addEventListener("click", () => {
-        selectedCardIndex = index;
+        selectedCardIndex = originalIndex;
         createDetailsCard(player);
 
         if (detailsModal) {
@@ -451,8 +470,13 @@ function updateCollection() {
     });
   }
 
-  cardCountElement.textContent =
-    `${collection.length} карт`;
+  if (activeFilter === "Все") {
+    cardCountElement.textContent =
+      `${collection.length} карт`;
+  } else {
+    cardCountElement.textContent =
+      `${filteredCollection.length} из ${collection.length}`;
+  }
 }
 
 function openPack() {
@@ -691,6 +715,22 @@ if (claimBonusButton) {
 }
 
 updateBonusButton();
+
+if (filterButtons.length > 0) {
+  filterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeFilter = button.dataset.filter;
+
+      filterButtons.forEach((item) => {
+        item.classList.remove("active");
+      });
+
+      button.classList.add("active");
+      updateCollection();
+      hapticImpact("light");
+    });
+  });
+}
 
 loadGame();
 setupTelegramMainButton();
