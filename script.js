@@ -169,6 +169,30 @@ const closeDetailsButton = document.querySelector("#closeDetails");
 const deleteCardButton = document.querySelector("#deleteCard");
 
 const resetGameButton = document.querySelector("#resetGame");
+const levelName =
+  document.querySelector("#levelName");
+
+const experienceText =
+  document.querySelector("#experienceText");
+
+const experienceFill =
+  document.querySelector("#experienceFill");
+
+const levelMessage =
+  document.querySelector("#levelMessage");
+
+const XP_PER_PACK = 20;
+const XP_PER_LEVEL = 100;
+const LEVEL_REWARD = 50;
+
+let experience = Number(
+  localStorage.getItem("goldenPitchExperience") || 0
+);
+
+let level = Number(
+  localStorage.getItem("goldenPitchLevel") || 1
+);
+
 const filterButtons =
   document.querySelectorAll(".filter-button");
 
@@ -285,6 +309,7 @@ function loadGame() {
 
   updateCoinsDisplay();
   updateCollection();
+  updateProgress();
 }
 
 function saveGame() {
@@ -302,13 +327,18 @@ function saveGame() {
 function resetGame() {
   localStorage.removeItem("goldenPitchCoins");
   localStorage.removeItem("goldenPitchCollection");
+  localStorage.removeItem("goldenPitchExperience");
+  localStorage.removeItem("goldenPitchLevel");
 
   coins = 100;
   collection = [];
+  experience = 0;
+  level = 1;
   selectedCardIndex = null;
 
   updateCoinsDisplay();
   updateCollection();
+  updateProgress();
 
   if (messageElement) {
     messageElement.textContent =
@@ -527,6 +557,9 @@ function openPack() {
     ];
 
     collection.push(...newPlayers);
+
+    addExperience(XP_PER_PACK);
+
     saveGame();
     updateCollection();
 
@@ -730,6 +763,69 @@ if (filterButtons.length > 0) {
       hapticImpact("light");
     });
   });
+}
+
+function saveProgress() {
+  localStorage.setItem(
+    "goldenPitchExperience",
+    String(experience)
+  );
+
+  localStorage.setItem(
+    "goldenPitchLevel",
+    String(level)
+  );
+}
+
+function updateProgress() {
+  if (
+    !levelName ||
+    !experienceText ||
+    !experienceFill
+  ) {
+    return;
+  }
+
+  levelName.textContent = `УРОВЕНЬ ${level}`;
+  experienceText.textContent =
+    `${experience} / ${XP_PER_LEVEL} XP`;
+
+  const progressPercent =
+    Math.min(experience / XP_PER_LEVEL, 1) * 100;
+
+  experienceFill.style.width =
+    `${progressPercent}%`;
+}
+
+function addExperience(amount) {
+  experience += amount;
+
+  let levelUp = false;
+
+  while (experience >= XP_PER_LEVEL) {
+    experience -= XP_PER_LEVEL;
+    level += 1;
+    coins += LEVEL_REWARD;
+    levelUp = true;
+  }
+
+  saveProgress();
+  saveGame();
+  updateCoinsDisplay();
+  updateProgress();
+
+  if (!levelMessage) {
+    return;
+  }
+
+  if (levelUp) {
+    levelMessage.textContent =
+      `Новый уровень! +${LEVEL_REWARD} монет`;
+    hapticNotification("success");
+  } else {
+    levelMessage.textContent =
+      `Получено +${amount} XP`;
+  }
 }
 
 loadGame();
