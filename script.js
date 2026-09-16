@@ -447,6 +447,28 @@ if (resetGameButton) {
   resetGameButton.addEventListener("click", () => {
     localStorage.removeItem("goldenPitchCoins");
     localStorage.removeItem("goldenPitchCollection");
+
+    if (telegramApp?.CloudStorage) {
+      telegramApp.CloudStorage.removeItems(
+        [
+          "goldenPitchCoins",
+          "goldenPitchCollection"
+        ],
+        (error) => {
+          if (error) {
+            console.error(
+              "Ошибка очистки Telegram CloudStorage:",
+              error
+            );
+          }
+
+          location.reload();
+        }
+      );
+
+      return;
+    }
+
     location.reload();
   });
 }
