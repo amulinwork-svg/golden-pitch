@@ -72,6 +72,68 @@ function showAuthStatus() {
   authStatus.classList.add("success");
 }
 
+async function checkServer() {
+  const authStatus =
+    document.querySelector("#authStatus");
+
+  if (!telegramApp?.initData) {
+    if (authStatus) {
+      authStatus.textContent =
+        "Telegram initData отсутствует";
+      authStatus.classList.add("warning");
+    }
+
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "http://localhost:3000/api/auth",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          initData: telegramApp.initData
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.error || "Авторизация не прошла"
+      );
+    }
+
+    if (authStatus) {
+      const userName =
+        data.user?.first_name || "игрок";
+
+      authStatus.textContent =
+        `Сервер подтвердил Telegram: ${userName}`;
+
+      authStatus.classList.remove("warning");
+      authStatus.classList.add("success");
+    }
+  } catch (error) {
+    console.error(
+      "Ошибка серверной авторизации:",
+      error
+    );
+
+    if (authStatus) {
+      authStatus.textContent =
+        `Ошибка авторизации: ${error.message}`;
+
+      authStatus.classList.remove("success");
+      authStatus.classList.add("warning");
+    }
+  }
+}
+
 const players = [
   {
     id: "luka-veil",
@@ -1006,6 +1068,7 @@ if (telegramGreeting) {
 }
 
 showAuthStatus();
+checkServer();
 loadGame();
 
 if (telegramApp?.MainButton) {
