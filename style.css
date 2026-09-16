@@ -608,3 +608,62 @@ body {
 .delete-card-button:active {
   transform: scale(0.98);
 }
+
+.daily-bonus {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 24px;
+  padding: 17px;
+  border: 1px solid rgba(255, 220, 140, 0.28);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(221, 175, 75, 0.18),
+      rgba(60, 39, 12, 0.45)
+    );
+}
+
+.daily-bonus h2 {
+  margin-bottom: 6px;
+  font-size: 19px;
+}
+
+.daily-bonus p:last-child {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.bonus-button {
+  flex-shrink: 0;
+  padding: 11px 13px;
+  border: 1px solid #f4d176;
+  border-radius: 10px;
+  color: #241a08;
+  background: #dcae4d;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.bonus-button:disabled {
+  color: #b8a987;
+  border-color: rgba(255, 220, 140, 0.2);
+  background: rgba(0, 0, 0, 0.25);
+  cursor: default;
+}
+
+@media (max-width: 380px) {
+  .daily-bonus {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .bonus-button {
+    width: 100%;
+  }
+}

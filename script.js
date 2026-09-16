@@ -169,11 +169,84 @@ const closeDetailsButton = document.querySelector("#closeDetails");
 const deleteCardButton = document.querySelector("#deleteCard");
 
 const resetGameButton = document.querySelector("#resetGame");
+const claimBonusButton =
+  document.querySelector("#claimBonus");
+
+const bonusMessage =
+  document.querySelector("#bonusMessage");
+
+const DAILY_BONUS = 25;
+const BONUS_INTERVAL = 24 * 60 * 60 * 1000;
+
+let lastBonusTime = Number(
+  localStorage.getItem("goldenPitchLastBonus") || 0
+);
 
 let selectedCardIndex = null;
 
 let coins = 100;
 let collection = [];
+
+function updateBonusButton() {
+  if (!claimBonusButton || !bonusMessage) {
+    return;
+  }
+
+  const now = Date.now();
+  const timePassed = now - lastBonusTime;
+  const timeLeft = BONUS_INTERVAL - timePassed;
+
+  if (timePassed >= BONUS_INTERVAL) {
+    claimBonusButton.disabled = false;
+    claimBonusButton.textContent = "Забрать";
+    bonusMessage.textContent =
+      "Ежедневная награда уже доступна";
+    return;
+  }
+
+  claimBonusButton.disabled = true;
+
+  const hoursLeft = Math.ceil(
+    timeLeft / (60 * 60 * 1000)
+  );
+
+  claimBonusButton.textContent =
+    `Через ${hoursLeft} ч.`;
+
+  bonusMessage.textContent =
+    "Ты уже получил бонус сегодня";
+}
+
+function claimDailyBonus() {
+  if (!claimBonusButton) {
+    return;
+  }
+
+  const now = Date.now();
+
+  if (now - lastBonusTime < BONUS_INTERVAL) {
+    return;
+  }
+
+  coins += DAILY_BONUS;
+  lastBonusTime = now;
+
+  localStorage.setItem(
+    "goldenPitchLastBonus",
+    String(lastBonusTime)
+  );
+
+  saveGame();
+  updateCoinsDisplay();
+  updateBonusButton();
+
+  if (messageElement) {
+    messageElement.textContent =
+      "Ежедневный бонус: +25 монет!";
+  }
+
+  hapticNotification("success");
+}
 
 function loadGame() {
   const savedCoins = localStorage.getItem("goldenPitchCoins");
@@ -609,6 +682,16 @@ if (telegramDebug) {
     `MainButton: ${Boolean(telegramApp?.MainButton)} | ` +
     `Версия: ${telegramApp?.version || "нет"}`;
 }
+
+if (claimBonusButton) {
+  claimBonusButton.addEventListener(
+    "click",
+    claimDailyBonus
+  );
+}
+
+updateBonusButton();
+
 loadGame();
 setupTelegramMainButton();
 updateTelegramMainButton();
