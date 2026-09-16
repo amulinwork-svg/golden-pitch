@@ -1,4 +1,6 @@
 const telegramApp = window.Telegram?.WebApp;
+const API_URL =
+  "https://synthetic-flap-cubical.ngrok-free.dev";
 
 if (telegramApp) {
   telegramApp.ready();
@@ -88,7 +90,7 @@ async function checkServer() {
 
   try {
     const response = await fetch(
-      "https://synthetic-flap-cubical.ngrok-free.dev",
+      `${API_URL}/api/auth`,
       {
         method: "POST",
         headers: {
