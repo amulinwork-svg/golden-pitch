@@ -30,26 +30,46 @@ function getTelegramInitData() {
 }
 
 function showAuthStatus() {
-  if (!telegramApp) {
+  const authStatus =
+    document.querySelector("#authStatus");
+
+  if (!authStatus) {
     return;
   }
 
-  const initData = getTelegramInitData();
+  if (!telegramApp) {
+    authStatus.textContent =
+      "Telegram API не найден. Обычный браузер.";
+    authStatus.classList.add("warning");
+    return;
+  }
+
+  const initData =
+    telegramApp.initData || "";
+
+  const user =
+    telegramApp.initDataUnsafe?.user;
 
   if (!initData) {
-    console.warn(
-      "Telegram initData отсутствует. " +
-      "Приложение открыто не через Mini App."
-    );
-
+    authStatus.textContent =
+      "Telegram найден, но initData отсутствует. " +
+      "Открой приложение через кнопку меню бота.";
+    authStatus.classList.add("warning");
     return;
   }
 
-  console.log(
-    "Telegram initData получен. " +
-    "Длина:",
-    initData.length
-  );
+  if (!user) {
+    authStatus.textContent =
+      "initData получен, но пользователь не найден.";
+    authStatus.classList.add("warning");
+    return;
+  }
+
+  authStatus.textContent =
+    `Telegram OK · ${user.first_name || "Игрок"} · ` +
+    `initData получен (${initData.length} символов)`;
+
+  authStatus.classList.add("success");
 }
 
 const players = [
