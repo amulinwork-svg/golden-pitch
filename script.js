@@ -17,6 +17,50 @@ function hapticNotification(type = "success") {
   }
 }
 
+function setupTelegramMainButton() {
+  if (!telegramApp?.MainButton) {
+    return;
+  }
+
+  telegramApp.MainButton.setParams({
+    text: "ОТКРЫТЬ ПАК · 10 ◆",
+    color: "#dcae4d",
+    text_color: "#241a08",
+    is_active: true,
+    is_visible: true
+  });
+
+  telegramApp.MainButton.onClick(() => {
+    openPack();
+  });
+}
+
+function updateTelegramMainButton() {
+  if (!telegramApp?.MainButton) {
+    return;
+  }
+
+  if (coins < 10) {
+    telegramApp.MainButton.setParams({
+      text: "НЕДОСТАТОЧНО МОНЕТ",
+      color: "#6b6252",
+      text_color: "#d2c5a4",
+      is_active: false,
+      is_visible: true
+    });
+
+    return;
+  }
+
+  telegramApp.MainButton.setParams({
+    text: "ОТКРЫТЬ ПАК · 10 ◆",
+    color: "#dcae4d",
+    text_color: "#241a08",
+    is_active: true,
+    is_visible: true
+  });
+}
+
 const players = [
   {
     id: "luka-veil",
@@ -195,6 +239,8 @@ function updateCoinsDisplay() {
   if (coinsElement) {
     coinsElement.textContent = coins;
   }
+
+  updateTelegramMainButton();
 }
 
 function choosePlayer() {
@@ -324,6 +370,14 @@ function updateCollection() {
 }
 
 function openPack() {
+  if (openPackButton?.disabled) {
+  return;
+  }
+  
+  if (telegramApp?.MainButton) {
+  telegramApp.MainButton.hide();
+  }
+  
   if (coins < 10) {
     if (messageElement) {
       messageElement.textContent =
@@ -331,6 +385,7 @@ function openPack() {
     }
 
     hapticNotification("error");
+    updateTelegramMainButton();
     return;
   }
 
@@ -393,6 +448,8 @@ function openPack() {
       messageElement.textContent =
         "В паке находятся 3 случайные карточки";
     }
+
+    updateTelegramMainButton();
 
     hapticNotification("success");
   }, 700);
@@ -529,3 +586,4 @@ if (telegramGreeting) {
 }
 
 loadGame();
+setupTelegramMainButton();
