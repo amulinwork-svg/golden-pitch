@@ -64,20 +64,51 @@
     </section>
 
     <section class="pack-section">
-      <div class="pack">
-        <div class="pack-shine"></div>
-        <div class="pack-logo">GP</div>
-        <h3>GOLDEN<br>PITCH</h3>
-        <p>PLAYER PACK</p>
-        <div class="pack-star">★</div>
+      <section class="shop-section">
+    <div class="section-heading">
+      <h2>Магазин паков</h2>
+      <span>Выбери награду</span>
+    </div>
+
+    <div class="pack-list">
+      <article class="shop-pack selected" data-pack="starter">
+      <div class="shop-pack-icon">◆</div>
+      <div class="shop-pack-info">
+        <h3>Стартовый пак</h3>
+        <p>3 случайные карточки</p>
+    </div>
+      <button class="buy-pack" data-pack="starter">
+        10 ◆
+      </button>
+      </article>
+
+      <article class="shop-pack" data-pack="premium">
+      <div class="shop-pack-icon">✦</div>
+      <div class="shop-pack-info">
+        <h3>Премиум пак</h3>
+        <p>5 карточек · выше шанс редких</p>
+      </div>
+      <button class="buy-pack" data-pack="premium">
+        25 ◆
+      </button>
+      </article>
+
+      <article class="shop-pack" data-pack="elite">
+      <div class="shop-pack-icon">★</div>
+      <div class="shop-pack-info">
+        <h3>Элитный пак</h3>
+        <p>7 карточек · выше шанс эпических</p>
+      </div>
+      <button class="buy-pack" data-pack="elite">
+        50 ◆
+      </button>
+      </article>
       </div>
 
-      <button id="openPack" class="gold-button">
-        Открыть пак
-        <span>10 ◆</span>
-      </button>
-
-      <p id="message" class="message">В паке находятся 3 случайные карточки</p>
+      <p id="message" class="message">
+    Выбери пак для открытия
+      </p>
+        </section>
     </section>
 
     <section class="collection-section">
@@ -102,12 +133,13 @@
     <button class="filter-button" data-filter="Эпическая">
       Эпические
     </button>
-  </div>
+    </div>
 
-  <div id="collection" class="collection empty">
+    <div id="collection" class="collection empty">
     Здесь появятся твои игроки
-  </div>
+    </div>
     </section>
+    
     <div id="telegramDebug"></div>
   </main>
 

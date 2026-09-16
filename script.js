@@ -149,6 +149,29 @@ const players = [
   }
 ];
 
+const packTypes = {
+  starter: {
+    price: 10,
+    cards: 3,
+    rareBonus: 0,
+    epicBonus: 0
+  },
+
+  premium: {
+    price: 25,
+    cards: 5,
+    rareBonus: 0.15,
+    epicBonus: 0.05
+  },
+
+  elite: {
+    price: 50,
+    cards: 7,
+    rareBonus: 0.25,
+    epicBonus: 0.15
+  }
+};
+
 const openPackButton = document.querySelector("#openPack");
 const coinsElement = document.querySelector("#coins");
 const messageElement = document.querySelector("#message");
@@ -180,6 +203,9 @@ const experienceFill =
 
 const levelMessage =
   document.querySelector("#levelMessage");
+
+const packButtons =
+  document.querySelectorAll(".buy-pack");
 
 const XP_PER_PACK = 20;
 const XP_PER_LEVEL = 100;
@@ -364,9 +390,35 @@ function updateCoinsDisplay() {
   updateTelegramMainButton();
 }
 
-function choosePlayer() {
-  const randomIndex = Math.floor(Math.random() * players.length);
-  return players[randomIndex];
+function choosePlayer(pack) {
+  const randomNumber = Math.random();
+
+  let selectedRarity = "Обычная";
+
+  if (
+    randomNumber < 0.08 + pack.epicBonus
+  ) {
+    selectedRarity = "Эпическая";
+  } else if (
+    randomNumber < 0.35 + pack.rareBonus
+  ) {
+    selectedRarity = "Редкая";
+  }
+
+  const rarityPlayers = players.filter(
+    (player) => player.rarity === selectedRarity
+  );
+
+  const availablePlayers =
+    rarityPlayers.length > 0
+      ? rarityPlayers
+      : players;
+
+  const randomIndex = Math.floor(
+    Math.random() * availablePlayers.length
+  );
+
+  return availablePlayers[randomIndex];
 }
 
 function createCard(player) {
@@ -509,40 +561,29 @@ function updateCollection() {
   }
 }
 
-function openPack() {
-  if (openPackButton?.disabled) {
-  return;
-  }
-  
-  if (telegramApp?.MainButton) {
-  telegramApp.MainButton.hide();
-  }
-  
-  if (coins < 10) {
-    if (messageElement) {
-      messageElement.textContent =
-        "Недостаточно монет";
-    }
+function openPack(packId = "starter") {
+  const pack = packTypes[packId];
 
-    hapticNotification("error");
-    updateTelegramMainButton();
+  if (!pack) {
     return;
   }
 
-  hapticImpact("medium");
+  if (coins < pack.price) {
+    if (messageElement) {
+      messageElement.textContent =
+        "Недостаточно монет для этого пака";
+    }
 
-  coins -= 10;
+    hapticNotification("error");
+    return;
+  }
+
+  coins -= pack.price;
   updateCoinsDisplay();
 
-  if (openPackButton) {
-    openPackButton.disabled = true;
-  }
-
-  const packElement = document.querySelector(".pack");
-
-  if (packElement) {
-    packElement.classList.add("opening");
-  }
+  packButtons.forEach((button) => {
+    button.disabled = true;
+  });
 
   if (messageElement) {
     messageElement.textContent =
@@ -550,16 +591,14 @@ function openPack() {
   }
 
   setTimeout(() => {
-    const newPlayers = [
-      choosePlayer(),
-      choosePlayer(),
-      choosePlayer()
-    ];
+    const newPlayers = [];
+
+    for (let index = 0; index < pack.cards; index += 1) {
+      newPlayers.push(choosePlayer(pack));
+    }
 
     collection.push(...newPlayers);
-
-    addExperience(XP_PER_PACK);
-
+    addExperience(20);
     saveGame();
     updateCollection();
 
@@ -569,30 +608,24 @@ function openPack() {
       newPlayers.forEach((player, index) => {
         const card = createCard(player);
         card.style.animationDelay =
-          `${index * 120}ms`;
+          `${index * 100}ms`;
 
         newCardsElement.appendChild(card);
       });
-    }
-
-    if (packElement) {
-      packElement.classList.remove("opening");
     }
 
     if (modal) {
       modal.classList.remove("hidden");
     }
 
-    if (openPackButton) {
-      openPackButton.disabled = false;
-    }
+    packButtons.forEach((button) => {
+      button.disabled = false;
+    });
 
     if (messageElement) {
       messageElement.textContent =
-        "В паке находятся 3 случайные карточки";
+        "Выбери пак для открытия";
     }
-
-    updateTelegramMainButton();
 
     hapticNotification("success");
   }, 700);
@@ -828,6 +861,11 @@ function addExperience(amount) {
   }
 }
 
+packButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const packId = button.dataset.pack;
+    openPack(packId);
+  });
+});
+
 loadGame();
-setupTelegramMainButton();
-updateTelegramMainButton();
