@@ -1,5 +1,4 @@
-const API_URL =
-  "https://synthetic-flap-cubical.ngrok-free.dev";
+const API_URL = "";
 
 const telegramApp = window.Telegram?.WebApp;
 
@@ -691,6 +690,108 @@ function openPack(packId = "starter") {
   }, 700);
 }
 
+async function openPackOnServer(packId) {
+  const pack = packTypes[packId];
+
+  if (!pack) {
+    return;
+  }
+
+  if (!telegramApp?.initData) {
+    openPack(packId);
+    return;
+  }
+
+  if (coins < pack.price) {
+    if (messageElement) {
+      messageElement.textContent =
+        "Недостаточно монет для этого пака";
+    }
+
+    hapticNotification("error");
+    return;
+  }
+
+  packButtons.forEach((button) => {
+    button.disabled = true;
+  });
+
+  if (messageElement) {
+    messageElement.textContent =
+      "Сервер открывает пак...";
+  }
+
+  try {
+    const response = await fetch(
+      `${API_URL}/api/open-pack`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          initData: telegramApp.initData,
+          packId
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.error || "Не удалось открыть пак"
+      );
+    }
+
+    const newPlayers = Array.isArray(data.cards)
+      ? data.cards
+      : [];
+
+    applyServerProfile(data.profile);
+
+    if (newCardsElement) {
+      newCardsElement.innerHTML = "";
+
+      newPlayers.forEach((player, index) => {
+        const card = createCard(player);
+
+        card.style.animationDelay =
+          `${index * 100}ms`;
+
+        newCardsElement.appendChild(card);
+      });
+    }
+
+    if (modal) {
+      modal.classList.remove("hidden");
+    }
+
+    if (messageElement) {
+      messageElement.textContent =
+        "Выбери пак для открытия";
+    }
+
+    hapticNotification("success");
+  } catch (error) {
+    console.error(
+      "Ошибка открытия пака:",
+      error
+    );
+
+    if (messageElement) {
+      messageElement.textContent =
+        `Ошибка: ${error.message}`;
+    }
+
+    hapticNotification("error");
+  } finally {
+    packButtons.forEach((button) => {
+      button.disabled = false;
+    });
+  }
+}
+
 async function checkServer() {
   if (!telegramApp?.initData) {
     if (authStatus) {
@@ -747,6 +848,78 @@ async function checkServer() {
       authStatus.classList.add("warning");
     }
   }
+}
+
+async function loadServerProfile() {
+  if (!telegramApp?.initData) {
+    throw new Error(
+      "Telegram initData отсутствует"
+    );
+  }
+
+  const response = await fetch(
+    `${API_URL}/api/profile`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        initData: telegramApp.initData
+      })
+    }
+  );
+
+  const responseText = await response.text();
+
+  let data;
+
+  try {
+    data = JSON.parse(responseText);
+  } catch {
+    throw new Error(
+      `Сервер вернул не JSON: ${responseText.slice(0, 160)}`
+    );
+  }
+
+  if (!response.ok || !data.success) {
+    throw new Error(
+      data.error ||
+      `HTTP ошибка ${response.status}`
+    );
+  }
+
+  return data.profile;
+}
+
+function applyServerProfile(profile) {
+  if (!profile) {
+    return;
+  }
+
+  coins = Number(profile.coins) || 0;
+  experience = Number(profile.experience) || 0;
+  level = Number(profile.level) || 1;
+
+  collection = Array.isArray(profile.collection)
+    ? profile.collection
+    : [];
+
+  lastBonusTime =
+    Number(profile.last_bonus_at) || 0;
+
+  updateCoinsDisplay();
+  updateCollection();
+  updateProgress();
+  updateBonusButton();
+
+  saveGame();
+  saveProgress();
+
+  localStorage.setItem(
+    "goldenPitchLastBonus",
+    String(lastBonusTime)
+  );
 }
 
 function deleteSelectedCard() {
@@ -875,7 +1048,7 @@ function resetGame() {
 if (packButtons.length > 0) {
   packButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      openPack(button.dataset.pack);
+      openPackOnServer(button.dataset.pack);
     });
   });
 }
@@ -982,8 +1155,34 @@ if (telegramGreeting) {
 }
 
 loadGame();
-checkServer();
 
 if (telegramApp?.MainButton) {
   telegramApp.MainButton.hide();
 }
+
+checkServer();
+
+loadServerProfile()
+  .then((profile) => {
+    applyServerProfile(profile);
+
+    if (authStatus) {
+      authStatus.textContent =
+        "Профиль загружен из SQLite";
+      authStatus.classList.remove("warning");
+      authStatus.classList.add("success");
+    }
+  })
+  .catch((error) => {
+    console.error(
+      "Ошибка загрузки серверного профиля:",
+      error
+    );
+
+    if (authStatus) {
+      authStatus.textContent =
+        `Профиль не загружен: ${error.message}`;
+      authStatus.classList.remove("success");
+      authStatus.classList.add("warning");
+    }
+  });
